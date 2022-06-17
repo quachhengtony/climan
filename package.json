@@ -1,0 +1,29 @@
+{
+  "name": "@quachhengtony/climan",
+  "version": "0.0.1",
+  "description": "Climan is a small npm package that automates long & boring commands for you.",
+  "main": "index.js",
+  "bin": {
+    "cm": "cli.js",
+    "cm repo": "repo.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quachhengtony/climan.git"
+  },
+  "keywords": [
+    "climan"
+  ],
+  "author": "Tony Quach <quachhengtony@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quachhengtony/climan/issues"
+  },
+  "homepage": "https://github.com/quachhengtony/climan/#readme",
+  "dependencies": {
+    "terminal-kit": "^2.4.0"
+  }
+}
