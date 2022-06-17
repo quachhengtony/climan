@@ -1,6 +1,6 @@
 {
   "name": "@quachhengtony/climan",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Climan is a small npm package that automates long & boring commands for you.",
   "main": "index.js",
   "bin": {

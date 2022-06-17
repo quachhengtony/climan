@@ -329,66 +329,79 @@ term.on("key", function (name, matches, data) {
   }
 });
 
-switch (ARG) {
-  case "repo":
-    fs.readFile(PATH, (err, data) => {
-      if (err) {
-        term.red("No commands found.\n");
-        term.yellow("Initializing a new empty repository...");
-        fs.appendFile(PATH, JSON.stringify([]), (err) => {
-          if (err) throw err;
-          repositoryManager();
-        });
-      }
-      if (data) {
+// switch (ARG) {
+//   case "repo":
+//     fs.readFile(PATH, (err, data) => {
+//       if (err) {
+//         term.red("No commands found.\n");
+//         term.yellow("Initializing a new empty repository...");
+//         fs.appendFile(PATH, JSON.stringify([]), (err) => {
+//           if (err) throw err;
+//           repositoryManager();
+//         });
+//       }
+//       if (data) {
+//         repositoryManager();
+//       }
+//     });
+//     break;
+//   default:
+//     fs.readFile(PATH, (err, data) => {
+//       if (err) {
+//         term.red("No commands found.\n");
+//         term
+//           .red("Please run ")
+//           .white("'cm repo'")
+//           .red(" to initilize a command repository");
+//         return;
+//       }
+//       if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
+//         term.red("No commands found.\n");
+//         term
+//           .red("Please run ")
+//           .white("'cm repo'")
+//           .red(" to initilize a command repository");
+//         return;
+//       }
+//       cliHelper(data);
+//     });
+//     break;
+// }
+
+module.exports = function repo() {
+  fs.readFile(PATH, (err, data) => {
+    if (err) {
+      term.red("No commands found.\n");
+      term.yellow("Initializing a new empty repository...");
+      fs.appendFile(PATH, JSON.stringify([]), (err) => {
+        if (err) throw err;
         repositoryManager();
-      }
-    });
-    break;
-  default:
-    fs.readFile(PATH, (err, data) => {
-      if (err) {
-        term.red("No commands found.\n");
-        term
-          .red("Please run ")
-          .white("'cm repo'")
-          .red(" to initilize a command repository");
-        return;
-      }
-      if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
-        term.red("No commands found.\n");
-        term
-          .red("Please run ")
-          .white("'cm repo'")
-          .red(" to initilize a command repository");
-        return;
-      }
-      cliHelper(data);
-    });
-    break;
-}
+      });
+    }
+    if (data) {
+      repositoryManager();
+    }
+  });
+};
 
-// module.exports = function repo() {
-//   repositoryManager();
-// };
-
-// module.exports = function runner() {
-//   // listCLIOptions()
-//   //   .then((response) => {
-//   //     cliHelper(response);
-//   //   })
-//   //   .catch((err) => {
-//   //     console.log(err);
-//   //   });
-//   fs.readFile(PATH, (err, data) => {
-//     if (err) {
-//       term.red("No commands found");
-//       term
-//         .yellow("Please run ")
-//         .white("'cm repo'")
-//         .yellow(" to initilize a command repository");
-//       return;
-//     }
-//     cliHelper(data);
-//   });
-// };
+module.exports = function runner() {
+  fs.readFile(PATH, (err, data) => {
+    if (err) {
+      term.red("No commands found.\n");
+      term
+        .red("Please run ")
+        .white("'cm repo'")
+        .red(" to initilize a command repository");
+      return;
+    }
+    if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
+      term.red("No commands found.\n");
+      term
+        .red("Please run ")
+        .white("'cm repo'")
+        .red(" to initilize a command repository");
+      return;
+    }
+    cliHelper(data);
+  });
+};
