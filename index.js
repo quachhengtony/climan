@@ -2,10 +2,8 @@ const term = require("terminal-kit").terminal;
 const fs = require("fs");
 const { exec } = require("child_process");
 
-const REPO_NAME = "climan";
-const FILE_EXTENSION = ".json";
-const PATH = "./" + REPO_NAME + FILE_EXTENSION;
-var ARG = process.argv[2];
+const path = require("path");
+const PATH = path.resolve(__dirname, "climan.json");
 
 var repoMenu = [
   "> Create new command",
@@ -166,28 +164,16 @@ const cliHelper = (response) => {
 };
 
 const getHistory = () => {
-  const repositories = require(PATH);
-  repositories.forEach((repository) => history.push(repository["repository"]));
+  return new Promise((resolve, rejetc) => {
+    const repositories = require(PATH);
+    repositories.forEach((repository) =>
+      history.push(repository["repository"])
+    );
+    resolve();
+  });
 };
 
 const deleteCommand = (repositories, allCommands) => {
-  // var allCommands = [];
-  // const repositories = require(PATH);
-  // repositories.forEach((repository) =>
-  //   repository["commands"].forEach((command) => {
-  //     allCommands.push(command);
-  //   })
-  // );
-
-  // if (allCommands.length == 0 || allCommands === undefined) {
-  //   term.red("No commands found.\n");
-  //   term
-  //     .red("Please run ")
-  //     .white("'cm repo'")
-  //     .red(" to initilize a command repository");
-  //   return repositoryManager();
-  // }
-
   term.singleColumnMenu(allCommands, (err, response) => {
     if (err) throw err;
     if (response) {
@@ -206,8 +192,8 @@ const deleteCommand = (repositories, allCommands) => {
   });
 };
 
-const repositoryManager = () => {
-  getHistory();
+const repositoryManager = async () => {
+  await getHistory();
   term.singleColumnMenu(repoMenu, (err, response) => {
     if (err) throw err;
     if (response.selectedIndex === 0) {
@@ -368,40 +354,4 @@ term.on("key", function (name, matches, data) {
 //     break;
 // }
 
-module.exports = function repo() {
-  fs.readFile(PATH, (err, data) => {
-    if (err) {
-      term.red("No commands found.\n");
-      term.yellow("Initializing a new empty repository...");
-      fs.appendFile(PATH, JSON.stringify([]), (err) => {
-        if (err) throw err;
-        repositoryManager();
-      });
-    }
-    if (data) {
-      repositoryManager();
-    }
-  });
-};
-
-module.exports = function runner() {
-  fs.readFile(PATH, (err, data) => {
-    if (err) {
-      term.red("No commands found.\n");
-      term
-        .red("Please run ")
-        .white("'cm repo'")
-        .red(" to initilize a command repository");
-      return;
-    }
-    if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
-      term.red("No commands found.\n");
-      term
-        .red("Please run ")
-        .white("'cm repo'")
-        .red(" to initilize a command repository");
-      return;
-    }
-    cliHelper(data);
-  });
-};
+module.exports = { cliHelper, repositoryManager };
