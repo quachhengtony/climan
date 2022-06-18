@@ -34,7 +34,7 @@ switch (ARG) {
         term
           .red("Please run ")
           .white("'cm repo'")
-          .red(" to initilize a command repository");
+          .red(" to initialize a command repository");
         return;
       }
       if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
@@ -42,7 +42,7 @@ switch (ARG) {
         term
           .red("Please run ")
           .white("'cm repo'")
-          .red(" to initilize a command repository");
+          .red(" to initialize a command repository");
         return;
       }
       cliHelper(data);
