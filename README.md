@@ -1,3 +1,5 @@
+![npm](https://img.shields.io/npm/dw/@quachhengtony/climan)
+
 # Climan
 
 Climan is a small npm package that automates long & boring commands for you.

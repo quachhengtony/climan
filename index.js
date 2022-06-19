@@ -6,9 +6,9 @@ const path = require("path");
 const PATH = path.resolve(__dirname, "climan.json");
 
 var repoMenu = [
-  "> Create new command",
-  "> Update existing command",
-  "> Delete command",
+  "> Create a new command",
+  "> Update existing commands",
+  "> Delete commands",
 ];
 var history = [];
 
@@ -270,7 +270,7 @@ const repositoryManager = async () => {
     }
     if (response.selectedIndex === 1) {
       new Promise((resolve, reject) => {
-        resolve(exec(getCommandLine() + " " + __dirname + "/climan.json"));
+        resolve(exec(getCommandLine() + " " + PATH));
       }).then((response) => {
         terminate();
       });
