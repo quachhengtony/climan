@@ -61,16 +61,16 @@ const deleted = (command) => {
   }, 100);
 };
 
-function getCommandLine() {
+function getCommandLine(password) {
   switch (process.platform) {
     case "darwin":
-      return "open";
+      return `echo ${password} | sudo -S xdg-open`;
     case "win32":
       return "start";
     case "win64":
       return "start";
     default:
-      return "xdg-open";
+      return `xdg-open`;
   }
 }
 
@@ -289,11 +289,20 @@ const repositoryManager = async () => {
       );
     }
     if (response.selectedIndex === 1) {
-      new Promise((resolve, reject) => {
-        resolve(exec(getCommandLine() + " " + PATH));
-      }).then((response) => {
-        terminate();
-      });
+      if (process.platform === "win32" || process.platform === "win64") {
+        executeCommand(getCommandLine() + " " + PATH).then((response) => {
+          terminate();
+        });
+      } else {
+        term("\nPlease enter your password: ");
+        term.inputField((err, input) => {
+          executeCommand(getCommandLine(input) + " " + PATH).then(
+            (response) => {
+              terminate();
+            }
+          );
+        });
+      }
     }
     if (response.selectedIndex === 2) {
       fs.readFile(PATH, (err, data) => {
