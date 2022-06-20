@@ -1,0 +1,9 @@
+[
+  {
+    "repository": "git",
+    "commands": [
+      "git checkout",
+      "git branch"
+    ]
+  }
+]

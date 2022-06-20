@@ -11,8 +11,8 @@ switch (ARG) {
   case "repo":
     fs.readFile(PATH, (err, data) => {
       if (err) {
-        term.red("No commands found.\n");
-        term.yellow("Initializing a new empty repository...");
+        term.bgRed("ERR").red(" No commands found.\n");
+        term.bgGreen("MSG").green(" Initialized a new command repository.");
         fs.appendFile(
           path.resolve(__dirname, "climan.json"),
           JSON.stringify([]),
@@ -30,19 +30,21 @@ switch (ARG) {
   default:
     fs.readFile(PATH, (err, data) => {
       if (err) {
-        term.red("No commands found.\n");
+        term.bgRed("ERR").red(" No commands found.\n");
         term
-          .red("Please run ")
+          .bgCyan("INF")
+          .cyan(" Please run ")
           .white("'cm repo'")
-          .red(" to initialize a command repository");
+          .cyan(" to initialize a command repository.");
         return;
       }
       if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
         term.red("No commands found.\n");
         term
-          .red("Please run ")
+          .bgCyan("INF")
+          .cyan(" Please run ")
           .white("'cm repo'")
-          .red(" to initialize a command repository");
+          .cyan(" to initialize a command repository.");
         return;
       }
       cliHelper(data);

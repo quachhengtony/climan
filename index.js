@@ -46,7 +46,7 @@ const executeCommand = (command, execOptions = {}) => {
 };
 
 const terminate = () => {
-  term.red("\nBYE!");
+  // term.red("\nBYE!");
   term.grabInput(false);
   setTimeout(function () {
     process.exit();
@@ -122,7 +122,7 @@ const cliHelper = (response) => {
       cliCommandMenu === "" ||
       cliCommandMenu == undefined
     ) {
-      term.red("\nNo commands found!");
+      term.bgRed("ERR").red(" No commands found.\n");
       return cliHelper(baseResponse);
     }
     term.singleColumnMenu(cliCommandMenu, (err, response) => {
@@ -164,12 +164,18 @@ const cliHelper = (response) => {
 };
 
 const getHistory = () => {
-  return new Promise((resolve, rejetc) => {
+  // var newHistory = history;
+  // console.log("CLEAR HISTORY");
+  return new Promise((resolve, reject) => {
     const repositories = require(PATH);
     repositories.forEach((repository) =>
       history.push(repository["repository"])
     );
-    resolve();
+    if (history.length != 0 || history !== undefined) {
+      resolve(history);
+    } else {
+      reject();
+    }
   });
 };
 
@@ -229,32 +235,46 @@ const repositoryManager = async () => {
               var data = JSON.stringify(record, null, 2);
               checkFileExists(PATH)
                 .then((response) => {
-                  const oldRepo = require(PATH);
-                  var exists = oldRepo.findIndex(
-                    (x) => x["repository"] === repoName
-                  );
-                  if (exists >= 0) {
-                    oldRepo[exists] = {
-                      ...oldRepo[exists],
-                      commands: [
-                        ...oldRepo[exists]["commands"],
-                        `${repoName} ${command}`,
-                      ],
-                    };
-                    var newRepo = oldRepo;
-                  } else {
-                    var newRepo = [
-                      ...oldRepo,
-                      {
-                        repository: repoName,
-                        commands: [`${repoName} ${command}`],
-                      },
-                    ];
-                  }
-                  var newRepoData = JSON.stringify(newRepo, null, 2);
-                  fs.writeFile(PATH, newRepoData, (err) => {
-                    if (err) throw new Error("Write file failed");
-                    repositoryManager();
+                  fs.readFile(PATH, (err, data) => {
+                    if (err) throw err;
+                    const oldRepo = JSON.parse(data);
+                    var exists = oldRepo.findIndex(
+                      (x) => x["repository"] === repoName
+                    );
+                    if (exists >= 0) {
+                      var duplicates = oldRepo[exists]["commands"].findIndex(
+                        (x) => x.substring(x.indexOf(" ") + 1) === command
+                      );
+
+                      if (duplicates >= 0) {
+                        term
+                          .bgYellow("\nWARN")
+                          .yellow(" Command already exists\n");
+
+                        return repositoryManager();
+                      }
+                      oldRepo[exists] = {
+                        ...oldRepo[exists],
+                        commands: [
+                          ...oldRepo[exists]["commands"],
+                          `${repoName} ${command}`,
+                        ],
+                      };
+                      var newRepo = oldRepo;
+                    } else {
+                      var newRepo = [
+                        ...oldRepo,
+                        {
+                          repository: repoName,
+                          commands: [`${repoName} ${command}`],
+                        },
+                      ];
+                    }
+                    var newRepoData = JSON.stringify(newRepo, null, 2);
+                    fs.writeFile(PATH, newRepoData, (err) => {
+                      if (err) throw new Error("Write file failed");
+                      repositoryManager();
+                    });
                   });
                 })
                 .catch((err) => {
@@ -278,7 +298,7 @@ const repositoryManager = async () => {
     if (response.selectedIndex === 2) {
       fs.readFile(PATH, (err, data) => {
         if (err) {
-          term.red("No commands found.\n");
+          term.bgRed("ERR").red(" No commands found.\n");
           term
             .red("Please run ")
             .white("'cm repo'")
@@ -286,7 +306,7 @@ const repositoryManager = async () => {
           return repositoryManager();
         }
         if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
-          term.red("No commands found.\n");
+          term.bgRed("ERR").red(" No commands found.\n");
           term
             .red("Please run ")
             .white("'cm repo'")
@@ -307,51 +327,12 @@ const repositoryManager = async () => {
 };
 
 term.bold.brightMagenta("CLIMAN running...\n");
-term.green("Hit CTRL-C to quit.\n\n");
+term.bgCyan("INF").cyan(" Hit CTRL-C to quit.\n\n");
 term.on("key", function (name, matches, data) {
   if (name === "CTRL_C") {
     term.clear();
     terminate();
   }
 });
-
-// switch (ARG) {
-//   case "repo":
-//     fs.readFile(PATH, (err, data) => {
-//       if (err) {
-//         term.red("No commands found.\n");
-//         term.yellow("Initializing a new empty repository...");
-//         fs.appendFile(PATH, JSON.stringify([]), (err) => {
-//           if (err) throw err;
-//           repositoryManager();
-//         });
-//       }
-//       if (data) {
-//         repositoryManager();
-//       }
-//     });
-//     break;
-//   default:
-//     fs.readFile(PATH, (err, data) => {
-//       if (err) {
-//         term.red("No commands found.\n");
-//         term
-//           .red("Please run ")
-//           .white("'cm repo'")
-//           .red(" to initilize a command repository");
-//         return;
-//       }
-//       if (JSON.parse(data).length == 0 || JSON.parse(data) === undefined) {
-//         term.red("No commands found.\n");
-//         term
-//           .red("Please run ")
-//           .white("'cm repo'")
-//           .red(" to initilize a command repository");
-//         return;
-//       }
-//       cliHelper(data);
-//     });
-//     break;
-// }
 
 module.exports = { cliHelper, repositoryManager };
