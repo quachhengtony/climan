@@ -212,7 +212,7 @@ const repositoryManager = async () => {
         },
         (err, input) => {
           if (err) throw err;
-          var repoName = input;
+          var repoName = input.trim();
           term("\nPlease enter the command for ").cyan(`${repoName} CLI`)(
             " (excluding the CLI name): "
           );
@@ -223,7 +223,7 @@ const repositoryManager = async () => {
             },
             (err, input) => {
               if (err) throw err;
-              var command = input;
+              var command = input.trim();
 
               var record = [
                 {
