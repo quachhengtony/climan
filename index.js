@@ -21,23 +21,22 @@ const checkFileExists = (path) => {
   });
 };
 
-const listCLIOptions = () => {
-  return new Promise((resolve, reject) => {
-    const data = require(PATH);
-    resolve(data);
-  });
-};
-
 const executeCommand = (command, execOptions = {}) => {
   return new Promise((resolve, reject) => {
     const childProcess = exec(command, execOptions);
     childProcess.stderr.on("data", (data) => {
       term("\n");
-      term.red(data);
+      data = data.split("\n");
+      data.forEach((element) => {
+        console.log(element);
+      });
     });
     childProcess.stdout.on("data", (data) => {
       term("\n");
-      term.cyan(data);
+      data = data.split("\n");
+      data.forEach((element) => {
+        console.log(element);
+      });
     });
     childProcess.on("exit", () => resolve());
     childProcess.on("close", () => resolve());
@@ -64,7 +63,7 @@ const deleted = (command) => {
 function getCommandLine(password) {
   switch (process.platform) {
     case "darwin":
-      return `echo ${password} | sudo -S xdg-open`;
+      return `echo ${password} | sudo -S open`;
     case "win32":
       return "start";
     case "win64":
@@ -110,57 +109,71 @@ const cliHelper = (response) => {
   cli.forEach((x) => {
     cliMenu.push("> " + x["repository"]);
   });
-  term.singleColumnMenu(cliMenu, (err, response) => {
-    if (err) throw err;
-    var cliCommandMenu = [];
-    cli[response.selectedIndex]["commands"].forEach((x) => {
-      cliCommandMenu.push("> " + x);
-    });
-
-    if (
-      cliCommandMenu.length == 0 ||
-      cliCommandMenu === "" ||
-      cliCommandMenu == undefined
-    ) {
-      term.bgRed("ERR").red(" No commands found.\n");
-      return cliHelper(baseResponse);
-    }
-    term.singleColumnMenu(cliCommandMenu, (err, response) => {
+  term.singleColumnMenu(
+    cliMenu,
+    {
+      style: term.white,
+      selectedStyle: term.bold,
+    },
+    (err, response) => {
       if (err) throw err;
-      if (!response.selectedText.includes("<")) {
-        executeCommand(response.selectedText.replace("> ", "")).then(
-          (response) => {
-            return cliHelper(baseResponse);
-          }
-        );
-      } else {
-        var arg = "";
-        var args = [];
-        for (var i = 0; i < response.selectedText.length; i++) {
-          if (response.selectedText[i] === "<") {
-            i++;
-            for (var k = i; k < response.selectedText.length; k++) {
-              if (response.selectedText[k] === ">") {
-                args.push(arg);
-                arg = "";
-                break;
+      var cliCommandMenu = [];
+      cli[response.selectedIndex]["commands"].forEach((x) => {
+        cliCommandMenu.push("> " + x);
+      });
+
+      if (
+        cliCommandMenu.length == 0 ||
+        cliCommandMenu === "" ||
+        cliCommandMenu == undefined
+      ) {
+        term.bgRed("ERR").red(" No commands found.\n");
+        return cliHelper(baseResponse);
+      }
+      term.singleColumnMenu(
+        cliCommandMenu,
+        {
+          style: term.white,
+          selectedStyle: term.bold,
+        },
+        (err, response) => {
+          if (err) throw err;
+          if (!response.selectedText.includes("<")) {
+            executeCommand(response.selectedText.replace("> ", "")).then(
+              (response) => {
+                return cliHelper(baseResponse);
               }
-              arg += response.selectedText[k];
+            );
+          } else {
+            var arg = "";
+            var args = [];
+            for (var i = 0; i < response.selectedText.length; i++) {
+              if (response.selectedText[i] === "<") {
+                i++;
+                for (var k = i; k < response.selectedText.length; k++) {
+                  if (response.selectedText[k] === ">") {
+                    args.push(arg);
+                    arg = "";
+                    break;
+                  }
+                  arg += response.selectedText[k];
+                }
+              }
             }
+            var argsValue = new Array();
+            getCommandArgs(
+              args,
+              argsValue,
+              0,
+              executeCommand,
+              response.selectedText,
+              baseResponse
+            );
           }
         }
-        var argsValue = new Array();
-        getCommandArgs(
-          args,
-          argsValue,
-          0,
-          executeCommand,
-          response.selectedText,
-          baseResponse
-        );
-      }
-    });
-  });
+      );
+    }
+  );
 };
 
 const getHistory = () => {
